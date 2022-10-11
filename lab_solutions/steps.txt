@@ -1,0 +1,526 @@
+###############################################################################################
+#################### Integrate Application into Existing CI/CD Environment #################### 
+###############################################################################################
+
+********************************************
+****************** Task 1 ****************** 
+********************************************
+** Step 4 **
+git clone http://dev.gitlab.local/root/application.git .
+
+** Step 6 **
+cd app/
+docker build -t app .
+
+** Step 7 **
+docker run -p 5000:5000 app
+
+********************************************
+****************** Task 2 ****************** 
+********************************************
+** Step 2 **
+gitlab-runner register
+shell
+gitlab-runner run -d /tmp
+
+** Step 4 **
+job1:
+  script: echo "Running test CI/CD."
+
+** Step 5 **
+git status
+git add .gitlab-ci.yml
+git commit -am "Adding initial .gitlab-ci.yml file."
+git push
+
+********************************************
+****************** Task 3 ****************** 
+********************************************
+** Step 1 **
+stages:
+  - build
+
+build:
+  stage: build
+  script: cd $CI_PROJECT_DIR/app && docker build -t app .
+
+** Step 2 **
+git commit -am "Updating .gitlab-ci.yml file with the build stage"
+git push
+
+** Step 5 **
+docker run -it -p 5000:5000 app
+
+********************************************
+****************** Task 4 ****************** 
+********************************************
+** Step 2 **
+import unittest
+
+
+class AppTest(unittest.TestCase):
+
+    def setUp(self):
+        self.url = 'http://localhost:5000'
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+** Step 3 **
+import unittest
+import requests
+
+class AppTest(unittest.TestCase):
+
+    def setUp(self):
+        self.url = 'http://localhost:5000'
+
+    def test_welcome(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        self.assertIn('Welcome to Cisco DevNet.', content)
+
+if __name__ == '__main__':
+    unittest.main()
+
+** Step 4 **
+python app_tests.py
+
+** Step 5 **
+    def test_welcome(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        self.assertIn('Welcome home.', content)
+
+** Step 5 **
+python app_tests.py
+
+** Step 7 **
+import unittest
+import requests
+
+class AppTest(unittest.TestCase):
+
+    def setUp(self):
+        self.url = 'http://localhost:5000'
+
+    def test_welcome(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        self.assertIn('Welcome to Cisco DevNet.', content)
+
+    def test_welcome_negative(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        self.assertNotIn('Welcome home.', content)
+
+if __name__ == '__main__':
+    unittest.main()
+
+** Step 8 **
+import unittest
+import requests
+
+class AppTest(unittest.TestCase):
+
+    def setUp(self):
+        self.url = 'http://localhost:5000'
+
+    def test_welcome(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        self.assertIn('Welcome to Cisco DevNet.', content)
+
+    def test_welcome_negative(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        self.assertNotIn('Welcome home.', content)
+
+    def test_ip(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        ip_regex = 'IP address of the server is ([0-9]{1,3}\.){3}[0-9]{1,3}.'
+        self.assertRegex(content, ip_regex)
+
+if __name__ == '__main__':
+    unittest.main()
+
+** Step 9 **
+python app_tests.py
+
+** Step 11 **
+#!/bin/bash
+
+DOCKER_ID=`docker run -d -p 5000:5000 app`
+sleep 3
+
+python app_tests.py
+EXIT_CODE=$?
+
+docker kill $DOCKER_ID
+docker rm $DOCKER_ID
+exit $EXIT_CODE
+
+** Step 12 **
+/bin/bash run_tests.sh
+
+** Step 13 **
+stages:
+  - build
+  - unittest 
+
+build:
+  stage: build
+  script: cd $CI_PROJECT_DIR/app && docker build -t app .
+
+unittest_application_code:
+  stage: unittest
+  script: cd $CI_PROJECT_DIR/app/tests && /bin/bash run_tests.sh
+
+** Step 14 **
+git add tests/
+git status
+
+git commit -am "Adding unit tests."
+git push
+
+********************************************
+****************** Task 5 ****************** 
+********************************************
+** Step 1 **
+stages:
+  - build
+  - unittest
+  - systembuild
+
+** Step 2 **
+docker login http://dev.gitlab.local:5005 -u root -p 1234QWer
+docker build -t dev.gitlab.local:5005/root/application/app .
+docker push dev.gitlab.local:5005/root/application/app
+
+** Step 2 **
+build_app:
+  stage: systembuild
+  script:
+    - cd $CI_PROJECT_DIR/app
+    - docker login http://dev.gitlab.local:5005 -u root -p 1234QWer
+    - docker build -t dev.gitlab.local:5005/root/application/app .
+    - docker push dev.gitlab.local:5005/root/application/app
+
+** Step 3 **
+build_lb:
+  stage: systembuild
+  script:
+    - cd $CI_PROJECT_DIR/lb
+    - docker login http://dev.gitlab.local:5005 -u root -p 1234QWer
+    - docker build -t dev.gitlab.local:5005/root/application/lb .
+    - docker push dev.gitlab.local:5005/root/application/lb
+
+** Step 4 **
+git commit -am "Adding packaging stage"
+git push
+
+********************************************
+****************** Task 6 ****************** 
+********************************************
+** Step 2 **
+import unittest
+
+class AppTest(unittest.TestCase);
+
+    def setUp(self):
+        self.url = 'http://localhost:8080'
+
+if __name__ == '__main__':
+    unittest.main()
+
+** Step 3 **
+import unittest
+import requests
+
+class AppTest(unittest.TestCase):
+
+    def setUp(self):
+        self.url = 'http://localhost:8080'
+
+    def test_welcome(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        self.assertIn('Welcome to Cisco DevNet.', content)
+        self.assertNotIn('Welcome home.', content)
+        ip_regex = 'IP address of the server is ([0-9]{1,3}\.){3}[0-9]{1,3}.'
+        self.assertRegex(content, ip_regex)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+** Step 4 **
+import unittest
+import requests
+
+class AppTest(unittest.TestCase):
+
+    def setUp(self):
+        self.url = 'http://localhost:8080'
+
+    def test_welcome(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        self.assertIn('Welcome to Cisco DevNet.', content)
+        self.assertNotIn('Welcome home.', content)
+        ip_regex = 'IP address of the server is ([0-9]{1,3}\.){3}[0-9]{1,3}.'
+        self.assertRegex(content, ip_regex)
+
+    def test_nginx(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        headers = response.headers
+        server_header = headers.get('Server')
+
+        self.assertEqual(status_code, 200)
+        self.assertIsNot(server_header, None)
+        self.assertIn('nginx', server_header)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+** Step 5 **
+import unittest
+import requests
+import re
+
+class AppTest(unittest.TestCase):
+
+    def setUp(self):
+        self.url = 'http://localhost:8080'
+
+    def test_welcome(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        content = response.content.decode('ascii')
+
+        self.assertEqual(status_code, 200)
+        self.assertIn('Welcome to Cisco DevNet.', content)
+        self.assertNotIn('Welcome home.', content)
+        ip_regex = 'IP address of the server is ([0-9]{1,3}\.){3}[0-9]{1,3}.'
+        self.assertRegex(content, ip_regex)
+
+    def test_nginx(self):
+        response = requests.get(self.url)
+        status_code = response.status_code
+        headers = response.headers
+        server_header = headers.get('Server')
+
+        self.assertEqual(status_code, 200)
+        self.assertIsNot(server_header, None)
+        self.assertIn('nginx', server_header)
+
+    def test_lb(self):
+        response1 = requests.get(self.url)
+        response2 = requests.get(self.url)
+
+        content1 = response1.content.decode('ascii')
+        content2 = response2.content.decode('ascii')
+
+        ip_regex = '([0-9]{1,3}\.){3}[0-9]{1,3}.'
+
+        ip_search1 = re.search(ip_regex, content1)
+        ip_search2 = re.search(ip_regex, content2)
+
+        self.assertIsNot(ip_search1, None)
+        self.assertIsNot(ip_search2, None)
+        self.assertNotEqual(ip_search1.group(), ip_search2.group())
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+** Step 6 **
+#!/bin/bash
+
+docker network inspect appnet
+
+if [[ $? -ne 0 ]]; then
+    docker network create --subnet=172.20.0.0/24 --gateway=172.20.0.1 appnet
+fi
+
+DOCKER_LB_ID=`docker run --net appnet --ip 172.20.0.10 -p 8080:8080 -itd dev.gitlab.local:5005/root/application/lb`
+DOCKER_APP1_ID=`docker run --net appnet --ip 172.20.0.100 -itd dev.gitlab.local:5005/root/application/app`
+DOCKER_APP2_ID=`docker run --net appnet --ip 172.20.0.101 -itd dev.gitlab.local:5005/root/application/app`
+sleep 5
+
+python tests/system_tests.py
+EXIT_CODE=$?
+
+docker stop $DOCKER_LB_ID
+docker rm $DOCKER_LB_ID
+docker stop $DOCKER_APP1_ID
+docker rm $DOCKER_APP1_ID
+docker stop $DOCKER_APP2_ID
+docker rm $DOCKER_APP2_ID
+exit $EXIT_CODE
+
+** Step 7 **
+stages:
+  - build
+  - unittest
+  - systembuild
+  - systemtest
+
+build:
+  stage: build
+  script: cd $CI_PROJECT_DIR/app && docker build -t app .
+
+unittest_application_code:
+  stage: unittest
+  script: cd $CI_PROJECT_DIR/app/tests && /bin/bash run_tests.sh
+
+build_app:
+  stage: systembuild
+  script:
+    - cd $CI_PROJECT_DIR/app
+    - docker login http://dev.gitlab.local:5005 -u root -p 1234QWer
+    - docker build -t dev.gitlab.local:5005/root/application/app .
+    - docker push dev.gitlab.local:5005/root/application/app
+
+build_lb:
+  stage: systembuild
+  script:
+    - cd $CI_PROJECT_DIR/lb
+    - docker login http://dev.gitlab.local:5005 -u root -p 1234QWer
+    - docker build -t dev.gitlab.local:5005/root/application/lb .
+    - docker push dev.gitlab.local:5005/root/application/lb
+
+system_test:
+  stage: systemtest
+  script: /bin/bash tests/run_system_tests.sh
+
+** Step 8 **
+git add tests
+git commit -am "Adding system tests"
+git push
+
+********************************************
+****************** Task 7 ****************** 
+********************************************
+** Step 1 **
+from flask import Flask
+import socket
+
+ip = socket.gethostbyname(socket.gethostname())
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    out = (
+        f'Welcome to Cisco DevNet.<br>'
+        # f'IP address of the server is {ip}.<br><br>'
+    )
+    return out
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
+
+** Step 2 **
+events {}
+http {
+
+  upstream myapp {
+    server 172.20.0.100:5000;
+    # server 172.20.0.101:5000;
+  }
+
+  server {
+    listen 8080;
+    server_name localhost;
+
+    location / {
+      proxy_pass http://myapp;
+      proxy_set_header Host $host;
+    }
+  }
+
+}
+
+** Step 3 **
+git commit -am "Injecting errors"
+git push
+
+** Step 5 **
+from flask import Flask
+import socket
+
+ip = socket.gethostbyname(socket.gethostname())
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    out = (
+        f'Welcome to Cisco DevNet.<br>'
+        f'IP address of the server is {ip}.<br><br>'
+    )
+    return out
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
+
+- - - - - - - - - - - - - - - - - - - - - - - - 
+git commit -am "Fixing application error"
+git push
+
+** Step 7 **
+events {}
+http {
+
+  upstream myapp {
+    server 172.20.0.100:5000;
+    server 172.20.0.101:5000;
+  }
+
+  server {
+    listen 8080;
+    server_name localhost;
+
+    location / {
+      proxy_pass http://myapp;
+      proxy_set_header Host $host;
+    }
+  }
+
+}
+
+** Step 7 **
+git commit -am "Fixing LB configuration"
+git push
